@@ -1,0 +1,19 @@
+/* This code helps you create multiple copies of a document in your google drive and rename each of them based on values in a google sheet. 
+In the first column of your google sheet, list down the names of the new files as required. 
+In your google sheet,open tools-->script editor and paste the following code.
+
+Open the google doc whose copy is to be made. Copy the text after /d/ and replace the text in line 13.
+Run the code. You will find your new copies in the same folder as the document whose copies are being made*/
+
+function copyDocs() {
+  var data = SpreadsheetApp.getActiveSheet().getDataRange().getValues();
+  
+  for (var i in data) {
+    
+      /*Open the google doc whose copy is to be made. Copy the text after /d/ and paste in placeof 1T0tf4KJWKWiG0YVMWxL_FVIKZW__KBWTdSfeXD2FiGk */
+    
+    var drive=DriveApp.getFileById('1T0tf4KJWKWiG0YVMWxL_FVIKZW__KBWTdSfeXD2FiGk');
+    drive.makeCopy(data[i][0]);
+  }
+  
+}
