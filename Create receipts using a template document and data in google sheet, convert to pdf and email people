@@ -1,0 +1,90 @@
+// Enter ID of the template document
+var TEMPLATE_ID = DriveApp.getFileById('11ceg4h4fThVa9cUmnZ0dCSRnCc4di5UvRClj0pnKjO0');
+
+// Enter ID of the folder in which you want your PDF's to be saved
+var toFolderId = '0B2KzHNxKPdCpT1ZQUnBDcDVKZnc';
+
+  
+function myFunction() {
+
+// Enter ID of the Spreadsheet with information  
+var ss = SpreadsheetApp.openById('1vEtd7oYfuvURUcwBpwnj8IyIH-765Dy33Rc5NfywWwo');
+var values = ss.getDataRange().getValues();    
+var nowsheet = ss.getActiveSheet(); 
+var emailId = null;
+
+for(x=1;x<values.length;++x){  
+var fileName = values[x][0];  
+var emailId = values[x][1];
+var name = values[x][2] ; 
+var amount = values[x][3] ; 
+  
+var sampleDoc = TEMPLATE_ID.makeCopy(fileName);
+var Id = sampleDoc.getId();
+var sampleId = Id;
+var copyDoc = DocumentApp.openById(Id);
+var docBody = copyDoc.getBody();
+
+docBody.replaceText('Name',name);  
+docBody.replaceText('Amount',amount);  
+
+copyDoc.saveAndClose();
+  
+var file1 = exportToPDF_(sampleId,toFolderId);//To create and save pdf file
+  
+var reOpenDoc = DriveApp.getFileById(sampleId); 
+reOpenDoc.setTrashed(true); //To delete the google doc created
+  
+sendEmail(emailId,file1,name); //To send email to patron
+
+var now = new Date();
+nowsheet.getRange(x+1,5,1,1).setValue(now); // Timestamp is set to indicate that email was sent successfully
+
+
+}
+}
+
+
+//PDF conversion
+function exportToPDF_(fileId, folderId){
+  var source = DriveApp.getFileById(fileId)
+  var blob = source.getAs('application/pdf');
+  var file = DriveApp.createFile(blob);
+  file.setName(source.getName() + '.pdf');
+  if(folderId) {
+    try{
+      var d = DriveApp.getFolderById(folderId);
+      moveToFolder_(file, d);
+    }
+    catch(e){
+    }
+  }
+  return file;
+}
+
+
+//Moving pdf file to folder
+function moveToFolder_(file, folder){
+  folder.addFile(file);
+  DriveApp.getRootFolder().removeFile(file);
+}
+
+
+//Sending emails
+function sendEmail(recipient,newFile,patron)
+{ 
+
+// Edit Email subject and body as required
+var EMAIL_SUBJECT = 'Rethink Contribution Receipt';
+var EMAIL_BODY = 'Hello '+patron+',\n\nThanks for your contribution. PFA Receipt.';
+  
+  if (recipient !== null) {
+  
+    MailApp.sendEmail(
+      recipient, 
+      EMAIL_SUBJECT, 
+      EMAIL_BODY,
+      {attachments: [newFile]})
+  }
+  
+} 
