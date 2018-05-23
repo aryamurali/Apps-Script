@@ -1,0 +1,45 @@
+//This script integrates Google form,sheets and gmail. When someone submits a response to a google form, an auto cornfirmation email is sent to them along with a prefilled link to another form. The form link is also updated against their name in the Form Responses sheet.
+
+
+function myFunction(e){
+  
+  var firstname = e.values[1];
+  var lastname = e.values[2];
+  var email = e.values[3];
+  var college = e.values[6];
+  var contact = e.values[4];
+  
+  var telegramlink = "<telegram LC link>"
+  
+  //------------- Test Data -----------//
+  /*
+  var firstname = "Arya";
+  var lastname = "Murali";
+  var email = "aryam1995@gmail.com";
+  var college = "GECT";
+  var contact = "000";
+  var telegramlink = "<telegram LC link>"
+  */
+  
+  
+  var template = "https://docs.google.com/forms/d/e/1FAIpQLSctXlT3FIamJvPsrbwummeOIsTRjWZg0atV_a8ZoNRYLE09tQ/viewform?usp=pp_url&entry.1278041804=Yes&entry.412645970=##firstname##&entry.1786376529=##lastname##&entry.1450864691=##college##&entry.1454701497=Kerala&entry.1710473835=India&entry.1010498524=##contact##";
+  var customform = template.replace('##firstname##',firstname)
+  .replace('##lastname##',lastname).replace('##college##',college).replace('##contact##',contact);    
+  
+  
+  var row = e.range.getRow();
+  var col = "12";
+  var sheet = SpreadsheetApp.getActiveSheet();
+  sheet.getRange(row, 13).setValue(customform);            
+  
+  
+  var message = {
+    to: email,
+    subject: "Form Submitted",
+    htmlBody: firstname + ", we have received your interest form submission. Here's the link to join our Telegram Learning Community:"+telegramlink+"\n\n Also sharing copy of the application form: <a href='"+ customform + "'>Your Copy of the GHCI Scholarship Application Form</a>"
+    //name: "Automatic Emailer Script",
+    //attachments: [file2.getAs(MimeType.PDF)]
+  };
+  MailApp.sendEmail(message); 
+  
+}
