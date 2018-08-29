@@ -1,0 +1,9 @@
+  //Script works only if the sheet you are trying to copy exists in your destination spreadsheet
+  var sheetName = 'Opportunity List';
+  var ss = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1rY_BlYFALJFQYY5kJ0PbiEmDT_nrm4nriqqlc8gmEUk/edit?userstoinvite=aryam1995@gmail.com&ts=5b812601&actionButton=1#gid=0');
+  var templateSheet = ss.getSheetByName('List');
+  
+  var destsheet = SpreadsheetApp.getActiveSpreadsheet();
+  
+  destsheet.insertSheet(sheetName, 0, {template: templateSheet});
+ 
