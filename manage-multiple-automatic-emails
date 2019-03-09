@@ -1,0 +1,39 @@
+/*
+This script sends automatic emails on a date. In this usecase, you enter names,emails,birthday dates of your friends/family and each person gets a birthday wish on their bday.
+Copy this sheet and enter your data as reqd: https://docs.google.com/spreadsheets/d/1nHgtvNJjbAFfLOh6itnMK46g1ybLNapkBxrznvRAazo/edit#gid=1186911837
+
+Enter following code on your spreadsheet's script editor (go to Tools --> Script Editor--> paste the code)
+Change values in script as indicated in comments
+Set a trigger for the script to run everyday at a time of your choice (Select time-driven script)
+Save and Run. You're sorted.
+*/
+
+function cellfunction() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");//Change name of your sheet in place of Sheet1
+  var range = sheet.getRange("A1:D2");//A1:D2 is the range that contains values. Once you update the full sheet, change this range to the relevant range that has values.
+  var UserData = range.getValues();
+  var name;
+  var dob;
+  var email;
+  var row;
+  var bday;
+ 
+
+  var i=1;
+  for (i in UserData) {
+    row = UserData[i]; //selects one row at a time
+   name = row[0]; // selects column 0 (first column)
+    dob = row[1]; // selects column 1
+    email = row[2]; // selects column 2
+    bday = row[3]; // selects column 3
+    
+    
+    if (bday == "yes") //Checks whether the person's bday is on the given day. (checking is being done in the google sheet and if bday is on given day, 'yes' is marked against the person.
+    { 
+      
+      MailApp.sendEmail(email, "Happy Birthday, "+ name+"!", "Happy Birthday to you!"); // customise message
+    
+    } 
+
+  }
+}
