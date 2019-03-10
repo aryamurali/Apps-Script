@@ -1,0 +1,91 @@
+
+  // Enter ID of the google doc greeting template
+var TEMPLATE_ID = DriveApp.getFileById('1I9IKgrxPO92dV7kXjRKKuvwE_LMzzXirwTC-pUvP7UU');
+
+
+function testHtmlFunction() {
+  
+var ss = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Birthday');
+var values = ss.getDataRange().getValues();    
+
+for(x=1;x<values.length;++x){  
+var name = values[x][0];  
+var dob = values[x][1];
+var email = values[x][2] ; 
+var bday = values[x][3] ; 
+
+if(bday == "yes")
+{
+  
+var sampleDoc = TEMPLATE_ID.makeCopy('Bday wish to '+name);
+var Id = sampleDoc.getId();
+var sampleId = Id;
+var copyDoc = DocumentApp.openById(Id);
+var docBody = copyDoc.getBody();
+
+docBody.replaceText('Name',name);  
+
+copyDoc.saveAndClose();
+
+  
+sendDocument(sampleId,email,'Happy Birthday, '+name+'!'); //To send email to patron
+
+var now = new Date();
+ss.getRange(x+1,5,1,1).setValue('Email sent on '+now); // Timestamp is set to indicate that email was sent successfully
+
+
+}
+}
+}
+
+
+//Sending emails
+function sendEmail(recipient,newFile,name)
+{ 
+
+// Edit Email subject and body as required
+var EMAIL_SUBJECT = 'Happy Birthday, '+name+'!';
+var EMAIL_BODY = 'Dear '+name+',\n\nHappy Happy Birthday!';
+  
+  if (recipient !== null) {
+  
+    MailApp.sendEmail(
+      recipient, 
+      EMAIL_SUBJECT, 
+      EMAIL_BODY,
+      {attachments: [newFile]})
+  }
+  
+} 
+
+function sendDocument(documentId, recipient, subject) {
+  var html = convertToHtml(documentId);
+  //html = inlineCss(html);
+  GmailApp.sendEmail(recipient, subject, null, {
+    htmlBody: html
+  });
+}
+ 
+/**
+ * Converts a file to HTML. The Advanced Drive service must be enabled to use
+ * this function.
+ */
+function convertToHtml(fileId) {
+  var file = Drive.Files.get(fileId);
+  var htmlExportLink = file.exportLinks['text/html'];
+  if (!htmlExportLink) {
+    throw 'File cannot be converted to HTML.';
+  }
+  var oAuthToken = ScriptApp.getOAuthToken();
+  var response = UrlFetchApp.fetch(htmlExportLink, {
+    headers:{
+      'Authorization': 'Bearer ' + oAuthToken
+    },
+    muteHttpExceptions: true
+  });
+  if (!response.getResponseCode() == 200) {
+    throw 'Error converting to HTML: ' + response.getContentText();
+  }
+  return response.getContentText();
+}
+ 
